@@ -1,27 +1,30 @@
-from flask import Flask, request, Response
+from flask import Flask, Response, request
 import requests
 
 app = Flask(__name__)
 
-SITE1_URL = 'http://site1.ru'
-SITE2_URL = 'http://site2.ru'
+SITE1_URL = 'http://a1'
+SITE2_URL = 'http://a2'
+SITE3_URL = 'http://a3'
 
-@app.route('/', defaults={'path': ''})
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def proxy(path):
-    url = f'{SITE1_URL}/{path}'
-    
+    if path == '1':
+        url = f'{SITE1_URL}/api/v1/ntlm'
+    elif path == '2':
+        url = f'{SITE2_URL}/api/v1/ntlm'
+    else:
+        # Если значение параметра пути не '1' и не '2', перенаправляем на SITE3_URL
+        url = SITE3_URL
+
     try:
         response = requests.get(url, headers=request.headers)
-        if response.status_code == 200:
-            # Перенаправляем на site1.ru/ указав location если ошибка == коду
-            return Response(status=302, headers={'Location': f'{SITE1_URL}/'})
+        if response.status_code == 404:
+            return Response(status=302, headers={'Location': SITE3_URL})
         else:
-            return Response(status=302, headers={'Location': SITE2_URL})
+            return response
     except (requests.exceptions.RequestException, ConnectionError) as e:
-        # Обработка ошибок сети и ошибок подключения
-        # Перенаправляем на site2.ru в случае ошибок
-        return Response(status=302, headers={'Location': SITE2_URL})
+        return Response(status=302, headers={'Location': SITE3_URL})
 
 if __name__ == '__main__':
      app.run(host='0.0.0.0', port=80)
