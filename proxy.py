@@ -14,8 +14,8 @@ handler.setLevel(logging.DEBUG)
 
 app.logger.addHandler(handler)
 
-SITE1_URL = 'http://miass.ru'
-SITE2_URL = 'http://74.ru'
+SITE1_URL = 'http://a1.ru'
+SITE2_URL = 'http://a2.ru'
 SITE3_URL = 'http://google.ru'
 
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
